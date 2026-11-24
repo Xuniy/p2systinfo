@@ -22,6 +22,7 @@ int wyjsc;
 
 int nombre_production = 0;
 int MAX_production = 131072;
+int theori_conso = 0;
 
 int main(int argc, char *argv[]) {
     if (argc != 3) {
@@ -51,7 +52,7 @@ int main(int argc, char *argv[]) {
 
     for (int i = 0; i < N_PRODU; i++){
         les_ids[i] = 67 + i;
-        pthread_create(&tproducteur[i], NULL, producteur, i);
+        pthread_create(&tproducteur[i], NULL, producteur, &les_ids[i]);
 
     }
 
@@ -78,15 +79,15 @@ int main(int argc, char *argv[]) {
 
         sem_wait(&places_libres);
         pthread_mutex_lock(&mutex_buffer);
-        if (nombre_production >= 131072){
+        if (nombre_production >= MAX_production){
             pthread_mutex_unlock(&mutex_buffer);
             sem_post(&places_libres);
             break;
         }
 
         buffer[wejsc]= id;
-        wyjsc ++;
-        if (wyjsc >= 7) {wyjsc = 0;}
+        wejsc ++;
+        if (wejsc > 7) {wejsc = 0;}
         nombre_production ++;
 
         pthread_mutex_unlock(&mutex_buffer);
@@ -101,7 +102,28 @@ int main(int argc, char *argv[]) {
     void *consommateur(void *arg){
         while (1)
         {
+            pthread_mutex_lock(&mutex_buffer);
+            if (theori_conso >= MAX_production){
+                pthread_mutex_unlock(&mutex_buffer);
+                break;
+            }
 
+            theori_conso++;
+            pthread_mutex_unlock(&mutex_buffer);
+
+            sem_wait(&places_occupees);
+
+            pthread_mutex_lock(&mutex_buffer);
+
+            int valeur = buffer[wyjsc];
+            wyjsc++; 
+            if (wyjsc > 7){wyjsc = 0;}
+
+
+            pthread_mutex_unlock(&mutex_buffer);
+
+            sem_post(&places_libres);
+            for (int i = 0; i < 10000; i++);
 
 
         }

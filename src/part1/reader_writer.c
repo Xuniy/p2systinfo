@@ -35,14 +35,10 @@ int main(int argc, char *argv[]) {
     printf("Mauvais arguments");
     return 1;
 }
-    // argc : nombre d’arguments, nom du programme compris
-    // argv : tableau des arguments sous forme de chaînes de caractères
-    char* tp1;
-    char* tp2;
-    long temp1 = strtol(argv[1],&tp1, 10);
-    long temp2 = strtol(argv[2], &tp2,10);
-    N_WRITERS =  (int) temp1;
-    N_READERS = (int) temp2;
+   
+    
+    N_WRITERS =  atoi(argv[1]);
+    N_READERS = atoi(argv[2]);
     sem_init(&wsem, 0, 1);
     sem_init(&rsem, 0, 1);
 

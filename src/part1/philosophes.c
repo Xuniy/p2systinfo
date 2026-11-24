@@ -50,5 +50,5 @@ int main(int argc, char* argv[]) {
     free(philosophers);
     free(ids);
 
-    return EXIT_SUCCESS;
+    return 0;
 }
