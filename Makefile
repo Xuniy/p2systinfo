@@ -1,5 +1,5 @@
 CC := gcc
-CFLAGS := -O0 -pthread -Wall -Wextra
+CFLAGS := -O0 -pthread -Wall
 
 BUILD_DIR := build
 RESULTS_DIR := results
