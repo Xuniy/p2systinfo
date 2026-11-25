@@ -72,11 +72,13 @@ void* reader(void* arg) {
 
 
     while (1) {
-        int arret = 0;
         pthread_mutex_lock(&mutex_compteurs);
-        if (compteur_lecture >= MAX_LECTURE){arret = 1;}
+        if (compteur_lecture >= MAX_LECTURE) {
+            pthread_mutex_unlock(&mutex_compteurs);
+            break;
+        }
+        compteur_lecture++; // réserve une lecture avant de libérer le verrou
         pthread_mutex_unlock(&mutex_compteurs);
-        if(arret == 1){break;}
         pthread_mutex_lock(&z);
         // only one reader waiting on rsem
         sem_wait(&rsem);
@@ -93,9 +95,6 @@ void* reader(void* arg) {
 
         // read ressource...
         for (int i=0; i<10000; i++);
-        pthread_mutex_lock(&mutex_compteurs);
-        compteur_lecture ++;
-        pthread_mutex_unlock(&mutex_compteurs);
 
         pthread_mutex_lock(&mutex_current_readers);
         current_readers--;
@@ -112,12 +111,13 @@ void* writer(void* arg) {
 
 
     while (1) {
-        int arret = 0;
         pthread_mutex_lock(&mutex_compteurs);
-        if (compteur_ecrivain >= MAX_ECRIVAIN){arret = 1;}
+        if (compteur_ecrivain >= MAX_ECRIVAIN) {
+            pthread_mutex_unlock(&mutex_compteurs);
+            break;
+        }
+        compteur_ecrivain++; // réserve une écriture avant de libérer le verrou
         pthread_mutex_unlock(&mutex_compteurs);
-
-        if(arret == 1){break;}
         pthread_mutex_lock(&mutex_current_writers);
         // critical section - current_writers
         current_writers++;
@@ -130,9 +130,6 @@ void* writer(void* arg) {
         
         // write ressource...
         for (int i=0; i<10000; i++);
-        pthread_mutex_lock(&mutex_compteurs);
-        compteur_ecrivain ++;
-        pthread_mutex_unlock(&mutex_compteurs);
         sem_post(&wsem);
         pthread_mutex_lock(&mutex_current_writers);
         // critical section - current_writers
