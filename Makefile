@@ -50,6 +50,8 @@ test: all
 	./src/part2/tas/benchmark_tas.sh "$(P2_TAS_BUILD)" "$(RESULTS_DIR)"
 	./src/part2/benchmark_compare_lock.sh "$(P2_LOCK_BUILD)" "$(RESULTS_DIR)"
 
+test-part1: part1
+	./src/part1/benchmark_part1.sh "$(P1_BUILD)" "$(RESULTS_DIR)"
 # "make clean" supprime tous les exécutables compilés et les fichiers générés
 clean:
 	rm -rf $(BUILD_DIR) $(RESULTS_DIR)
