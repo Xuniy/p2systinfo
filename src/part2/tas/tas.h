@@ -11,7 +11,7 @@ static inline void tas_init(tas_t *verrou)
 static inline int tas_changement(int* adr, int valeur){
 
     asm volatile(
-        "xchgl %0, %1"
+        "xchg %0, %1"
         : "+r" (valeur), "+m" (*adr)
         :
         : "memory"

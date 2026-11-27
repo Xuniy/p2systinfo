@@ -8,19 +8,24 @@
 int num_philosophers;
 tas_t* forks;
 
-void *philosopher(void* arg) {
+void* philosopher(void* arg) {
     int id = *(int*)arg;
+    free(arg);
+
+    int left = id;
+    int right = (id + 1) % num_philosophers;
+
     for (int i = 0; i < CYCLES; i++) {
-        // Thinking
-        printf("Philosopher %d is thinking.\n", id);
-        // Pick up forks
-        lock(&forks[id]);
-        lock(&forks[(id + 1) % num_philosophers]);
-        // Eating
-        printf("Philosopher %d is eating.\n", id);
-        // Put down forks
-        unlock(&forks[(id + 1) % num_philosophers]);
-        unlock(&forks[id]);
+        if (id % 2 == 0) {
+            lock(&forks[left]);
+            lock(&forks[right]);
+        } else {
+            lock(&forks[right]);
+            lock(&forks[left]);
+        }
+
+        unlock(&forks[right]);
+        unlock(&forks[left]);
     }
     return NULL;
 }
@@ -32,14 +37,33 @@ int main(int argc, char* argv[]) {
     }
 
     num_philosophers = atoi(argv[1]);
-    forks = malloc(num_philosophers * sizeof(tas_t));
-    pthread_t* philosophers = malloc(num_philosophers * sizeof(pthread_t));
-    int* ids = malloc(num_philosophers * sizeof(int));
+    if (num_philosophers <= 0) {
+        fprintf(stderr, "Number of philosophers must be > 0\n");
+        return EXIT_FAILURE;
+    }
+
+    forks = malloc((size_t)num_philosophers * sizeof(tas_t));
+    pthread_t* philosophers = malloc((size_t)num_philosophers * sizeof(pthread_t));
+
+    if (!forks || !philosophers) {
+        perror("malloc");
+        free(forks);
+        free(philosophers);
+        return EXIT_FAILURE;
+    }
 
     for (int i = 0; i < num_philosophers; i++) {
         tas_init(&forks[i]);
-        ids[i] = i;
-        pthread_create(&philosophers[i], NULL, philosopher, &ids[i]);
+    }
+
+    for (int i = 0; i < num_philosophers; i++) {
+        int* id_ptr = malloc(sizeof(int));
+        if (!id_ptr) {
+            perror("malloc");
+            return EXIT_FAILURE;
+        }
+        *id_ptr = i;
+        pthread_create(&philosophers[i], NULL, philosopher, id_ptr);
     }
 
     for (int i = 0; i < num_philosophers; i++) {
@@ -48,7 +72,5 @@ int main(int argc, char* argv[]) {
 
     free(forks);
     free(philosophers);
-    free(ids);
-
     return 0;
 }

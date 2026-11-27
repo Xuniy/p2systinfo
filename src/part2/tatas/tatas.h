@@ -8,7 +8,7 @@ static inline void tatas_init(tatas_t*verrou){
 
 static inline int tatas_changement(int*adr, int valeur){
     asm volatile(
-        "xchgl %0, %1"
+        "xchg %0, %1"
         : "+r" (valeur), "+m" (*adr)
         :
         :"memory"
