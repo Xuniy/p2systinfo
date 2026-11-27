@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-BUILD_DIR="{1:-build/part1}"
+BUILD_DIR="${1:-build/part1}"
 OUTPUT_DIR="{2:-output/part1}"
 THREADS=(2 4 8 16 32)
 REP=5
@@ -22,25 +22,26 @@ run_benchmark() {
 
     for i in "${THREADS[@]}"; do
         for j in $(seq 1 "$REP"); do
-            local start,end,duration
-            start=$(date +%s.%N)
+            local start_ns end_ns duration
+            start_ns=$(date +%s%N)
+
             if [ "$arguments" = "one" ]; then
                 "$exe" "$i" >/dev/null
             elif [ "$arguments" = "two" ]; then
-            local split=$((i/2))
+                local split=$((i / 2))
                 "$exe" "$split" "$split" >/dev/null
             else
-                echo "Arguments invalides pour le programme $program"
+                echo "Arguments invalides pour le programme $program" >&2
                 exit 1
             fi
-            end=$(date +%s.%N)
-            duration=$(awk "BEGIN { printf \"%.4f\", ($end - $start) / 1000000000 }")
-            echo "$i,$j,$duration" >> "$csv"
 
+            end_ns=$(date +%s%N)
+            duration=$(awk "BEGIN { printf \"%.6f\", ($end_ns - $start_ns) / 1000000000 }")
+            echo "$i,$j,$duration" >> "$csv"
         done
     done 
 }
-
-run_benchmark "philosophes" "one"
 run_benchmark "producer_consumer" "two"
-run_benchmark "readers_writers" "two"
+run_benchmark "reader_writer" "two"
+run_benchmark "philosophes" "one"
+
