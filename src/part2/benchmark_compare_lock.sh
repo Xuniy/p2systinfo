@@ -27,6 +27,8 @@ run_benchmark() {
         for ((rep = 1; rep <= REP; rep++)); do
             local start_ns end_ns elapsed_ns duration
 
+            echo "compare_lock $type : $n threads, mesure $rep/$REP" >&2
+
             start_ns=$(date +%s%N)
 
             "$exe" "$n" "$type" >/dev/null

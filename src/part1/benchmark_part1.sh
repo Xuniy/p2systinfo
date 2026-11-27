@@ -23,6 +23,7 @@ run_benchmark() {
     for i in "${THREADS[@]}"; do
         for j in $(seq 1 "$REP"); do
             local start_ns end_ns duration
+            echo "$program : $i threads, mesure $j/$REP" >&2
             start_ns=$(date +%s%N)
 
             if [ "$arguments" = "one" ]; then
