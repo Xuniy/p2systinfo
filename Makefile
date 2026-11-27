@@ -58,6 +58,9 @@ test: all
 
 test-part1: part1
 	./src/part1/benchmark_part1.sh "$(P1_BUILD)" "$(RESULTS_DIR)"
+
+plots:
+	python3 graphes/generate_plot.py
 # "make clean" supprime tous les exécutables compilés et les fichiers générés
 clean:
 	rm -rf $(BUILD_DIR) $(RESULTS_DIR)

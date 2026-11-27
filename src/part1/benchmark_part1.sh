@@ -2,7 +2,7 @@
 set -euo pipefail
 
 BUILD_DIR="${1:-build/part1}"
-OUTPUT_DIR="{2:-output/part1}"
+OUTPUT_DIR="${2:-output/part1}"
 THREADS=(2 4 8 16 32)
 REP=5
 mkdir -p "$OUTPUT_DIR"
@@ -41,7 +41,8 @@ run_benchmark() {
         done
     done 
 }
+run_benchmark "philosophes" "one"
 run_benchmark "producer_consumer" "two"
 run_benchmark "reader_writer" "two"
-run_benchmark "philosophes" "one"
+
 

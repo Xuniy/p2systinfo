@@ -1,26 +1,38 @@
+import os
+
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
+import os
 
-data=pd.read_csv('measures.csv', names=["Run 1", "Run 2", "Run 3", "Run 4", "Run 5"])
-data=data.dropna(axis=1)
-data=data.T
+RESULT_DIR = "results"
+OUTPUT_DIR = "graphes"
 
-data.columns=['Thread 1', 'Thread 2', 'Thread 4', 'Thread 8', 'Thread 16']
-mean=data.mean()
+def make_stats(csv_path):
+    df = pd.read_csv(csv_path)
+    stats_df = df.groupby("threads")["duration_sec"].agg(mean="mean", std="std").reset_index().sort_values("threads")
+    return stats_df
 
-std=data.std()
+stats = make_stats("results/philosophes.csv")
 
-thread=[2**i for i in range(5)]
+plt.figure(figsize=(8, 5))
+plt.errorbar(
+    stats["threads"],
+    stats["mean"],
+    yerr=stats["std"].fillna(0),
+    marker="o",
+    capsize=4,
+    label="Philosophes (POSIX)",
+)
 
-plt.plot(thread, mean, label='Mean', color='blue')
-plt.errorbar(thread, mean, yerr=std, fmt='o', color='blue', capsize=5, label='Standard Deviation')
-plt.xlabel('Number of Threads')
-plt.ylabel('Compilation time in sec')
-plt.title('Compilation time vs Number of Threads')
-plt.xscale('log', base=2)
-plt.xticks(thread, thread)
-
+plt.title("Temps d'exécution moyen — Philosophes")
+plt.xlabel("Nombre de threads")
+plt.ylabel("Temps moyen (s)")
+plt.xticks([2, 4, 8, 16, 32])
+plt.ylim(bottom=0)
+plt.grid(True, linestyle="--", alpha=0.6)
 plt.legend()
-plt.savefig("perf.pdf")
-plt.show()
+
+os.makedirs(OUTPUT_DIR, exist_ok=True)
+plt.savefig(os.path.join(OUTPUT_DIR, "test_philosophes.png"), dpi=300, bbox_inches="tight")
+plt.close()
