@@ -1,0 +1,1 @@
+#faire un truc pour faire compare lock pour 1 2 4 6 8 16 32 pour tas et tatas

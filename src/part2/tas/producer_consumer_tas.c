@@ -1,7 +1,5 @@
 #include <pthread.h>
 #include "sem_tas.h"
-#include <stdatomic.h>
-#include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 

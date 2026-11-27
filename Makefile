@@ -34,7 +34,7 @@ ALL_EXES := $(P1_EXES) $(P2_TATAS_EXES) $(P2_TAS_EXES) $(P2_LOCK_EXE)
 # ==============================================================================
 # Cibles principales (make, make test, make clean)
 # ==============================================================================
-.PHONY: all part1 part2 test clean
+.PHONY: all part1 part2 lock test-lock test clean
 
 # "make" compile tout (Partie 1 + Partie 2)
 all: $(ALL_EXES)
@@ -42,6 +42,12 @@ all: $(ALL_EXES)
 # Permet aussi de compiler uniquement une partie si besoin : "make part1" ou "make part2"
 part1: $(P1_EXES)
 part2: $(P2_TATAS_EXES) $(P2_TAS_EXES) $(P2_LOCK_EXE)
+
+lock: $(P2_LOCK_EXE)
+
+test-lock: lock
+	./src/part2/benchmark_compare_lock.sh "$(P2_LOCK_BUILD)" "$(RESULTS_DIR)"
+	python3 graphes/generate_lock_plot.py "$(RESULTS_DIR)"
 
 # "make test" compile tout puis lance les scripts de benchmark
 test: all
@@ -76,6 +82,6 @@ $(P2_TAS_BUILD)/%: $(P2_TAS_SRC)/%.c
 	$(CC) $(CFLAGS) -I$(P2_TAS_SRC) $< -o $@
 
 # 4. Compilation Partie 2 - compare_lock (inclut tatas/, tas/ et btatas/ si utilisé)
-$(P2_LOCK_BUILD)/compare_lock: $(P2_LOCK_SRC)/compare_lock.c
+$(P2_LOCK_BUILD)/compare_lock: $(P2_LOCK_SRC)/compare_lock.c $(P2_TAS_SRC)/tas.h
 	@mkdir -p $(@D)
 	$(CC) $(CFLAGS) -I$(P2_TATAS_SRC) -I$(P2_TAS_SRC) -Isrc/part2/btatas $< -o $@
